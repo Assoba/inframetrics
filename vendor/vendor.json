@@ -1,0 +1,87 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"checksumSHA1": "6TttwiGd0SYNT/fFW5BisyYFw8Y=",
+			"path": "github.com/StackExchange/wmi",
+			"revision": "ea383cf3ba6ec950874b8486cd72356d007c768f",
+			"revisionTime": "2017-04-10T19:29:09Z"
+		},
+		{
+			"checksumSHA1": "R5x3iyG1kXNpnb7k/hVLtY7XyFw=",
+			"path": "github.com/go-ole/go-ole",
+			"revision": "a41e3c4b706f6ae8dfbff342b06e40fa4d2d0506",
+			"revisionTime": "2017-11-10T16:07:06Z"
+		},
+		{
+			"checksumSHA1": "8WEwmkTfx50YYgQZblE1fKHsgDI=",
+			"path": "github.com/go-ole/go-ole/oleutil",
+			"revision": "a41e3c4b706f6ae8dfbff342b06e40fa4d2d0506",
+			"revisionTime": "2017-11-10T16:07:06Z"
+		},
+		{
+			"checksumSHA1": "UYDU8nJJ/RXSTrR+dgQodj78uQI=",
+			"path": "github.com/inconshreveable/mousetrap",
+			"revision": "76626ae9c91c4f2a10f34cad8ce83ea42c93bb75",
+			"revisionTime": "2014-10-17T20:07:13Z"
+		},
+		{
+			"checksumSHA1": "OKb1IKxTLLBV6JuUBsc/VSq0+a4=",
+			"path": "github.com/shirou/gopsutil/internal/common",
+			"revision": "27389f01ec9364f60d6dba4fbe9751d3b7058d46",
+			"revisionTime": "2017-12-14T06:29:47Z"
+		},
+		{
+			"checksumSHA1": "WSCvwr+PTRTD6/+5uD2mIT+f31s=",
+			"path": "github.com/shirou/gopsutil/load",
+			"revision": "27389f01ec9364f60d6dba4fbe9751d3b7058d46",
+			"revisionTime": "2017-12-14T06:29:47Z"
+		},
+		{
+			"checksumSHA1": "diYCn2E7DO2PtXHuZa07PL+x2Lg=",
+			"path": "github.com/shirou/gopsutil/mem",
+			"revision": "27389f01ec9364f60d6dba4fbe9751d3b7058d46",
+			"revisionTime": "2017-12-14T06:29:47Z"
+		},
+		{
+			"checksumSHA1": "Bov30zFUQHGdgKX7BUIvW9EgzOw=",
+			"path": "github.com/sirupsen/logrus",
+			"revision": "d682213848ed68c0a260ca37d6dd5ace8423f5ba",
+			"revisionTime": "2017-12-05T20:32:29Z",
+			"version": "v1.0.4",
+			"versionExact": "v1.0.4"
+		},
+		{
+			"checksumSHA1": "1l+qYtpy4glQr7SxFNSPyDVEYV8=",
+			"path": "github.com/spf13/cobra",
+			"revision": "ccaecb155a2177302cb56cae929251a256d0f646",
+			"revisionTime": "2017-12-07T07:49:35Z"
+		},
+		{
+			"checksumSHA1": "c1yK6JBPp/VfpCkdFJUCTkH92zQ=",
+			"path": "github.com/spf13/pflag",
+			"revision": "4c012f6dcd9546820e378d0bdda4d8fc772cdfea",
+			"revisionTime": "2017-11-06T14:28:49Z"
+		},
+		{
+			"checksumSHA1": "X1NTlfcau2XcV6WtAHF6b/DECOA=",
+			"path": "golang.org/x/crypto/ssh/terminal",
+			"revision": "d585fd2cc9195196078f516b69daff6744ef5e84",
+			"revisionTime": "2017-12-16T04:08:15Z"
+		},
+		{
+			"checksumSHA1": "VaWt1KQODK3z6ymfOyyxHPgzHis=",
+			"path": "golang.org/x/sys/unix",
+			"revision": "571f7bbbe08da2a8955aed9d4db316e78630e9a3",
+			"revisionTime": "2017-12-16T14:55:03Z"
+		},
+		{
+			"checksumSHA1": "du9BFcn4Qlm/4H3jlRBGGH43aQI=",
+			"path": "golang.org/x/sys/windows",
+			"revision": "571f7bbbe08da2a8955aed9d4db316e78630e9a3",
+			"revisionTime": "2017-12-16T14:55:03Z"
+		}
+	],
+	"rootPath": "github.com/assoba.fr/inframetrics"
+}
