@@ -24,11 +24,42 @@ import (
 func Handler(w http.ResponseWriter, _ *http.Request) {
 	getSystemMetrics(w)
 	getIoStats(w)
+	getNetStats(w)
 	getNomadMetrics(w)
+	getConsulMetrics(w)
+}
+
+func getNetStats(w http.ResponseWriter) {
+	m1, m5, m15 := loadNetStats()
+	var crlf = []byte("\r\n")
+	for dev, io := range m1.devices {
+		w.Write([]byte("node_net_in_bytes_per_second{duration=\"1s\", device=\"" + dev + "\"} "))
+		w.Write([]byte(strconv.FormatFloat(io.bps_in, 'g', 3, 64)))
+		w.Write(crlf)
+		w.Write([]byte("node_net_out_bytes_per_second{duration=\"1s\", device=\"" + dev + "\"} "))
+		w.Write([]byte(strconv.FormatFloat(io.bps_out, 'g', 3, 64)))
+		w.Write(crlf)
+	}
+	for dev, io := range m5.devices {
+		w.Write([]byte("node_net_in_bytes_per_second{duration=\"5s\", device=\"" + dev + "\"} "))
+		w.Write([]byte(strconv.FormatFloat(io.bps_in, 'g', 3, 64)))
+		w.Write(crlf)
+		w.Write([]byte("node_net_out_bytes_per_second{duration=\"5s\", device=\"" + dev + "\"} "))
+		w.Write([]byte(strconv.FormatFloat(io.bps_out, 'g', 3, 64)))
+		w.Write(crlf)
+	}
+	for dev, io := range m15.devices {
+		w.Write([]byte("node_net_in_bytes_per_second{duration=\"15s\", device=\"" + dev + "\"} "))
+		w.Write([]byte(strconv.FormatFloat(io.bps_in, 'g', 3, 64)))
+		w.Write(crlf)
+		w.Write([]byte("node_net_out_bytes_per_second{duration=\"15s\", device=\"" + dev + "\"} "))
+		w.Write([]byte(strconv.FormatFloat(io.bps_out, 'g', 3, 64)))
+		w.Write(crlf)
+	}
 }
 
 func getIoStats(w http.ResponseWriter) {
-	m1, m5, m15 := GetStats()
+	m1, m5, m15 := loadIoStats()
 	var crlf = []byte("\r\n")
 	w.Write([]byte("node_cpu_user_ratio{duration=\"1s\"} "))
 	w.Write([]byte(strconv.FormatFloat(m1.user, 'g', 3, 64)))
@@ -89,8 +120,35 @@ func getIoStats(w http.ResponseWriter) {
 	w.Write([]byte("node_cpu_idle_ratio{duration=\"15s\"} "))
 	w.Write([]byte(strconv.FormatFloat(m15.idle, 'g', 3, 64)))
 	w.Write(crlf)
-	// TODO: add device IO
+
+	for dev, io := range m1.devices {
+		w.Write([]byte("node_disk_writes_bytes_per_second{duration=\"1s\", device=\"" + dev + "\"} "))
+		w.Write([]byte(strconv.FormatFloat(io.bytes_write, 'g', 3, 64)))
+		w.Write(crlf)
+		w.Write([]byte("node_disk_reads_bytes_per_second{duration=\"1s\", device=\"" + dev + "\"} "))
+		w.Write([]byte(strconv.FormatFloat(io.bytes_read, 'g', 3, 64)))
+		w.Write(crlf)
+	}
+
+	for dev, io := range m5.devices {
+		w.Write([]byte("node_disk_writes_bytes_per_second{duration=\"5s\", device=\"" + dev + "\"} "))
+		w.Write([]byte(strconv.FormatFloat(io.bytes_write, 'g', 3, 64)))
+		w.Write(crlf)
+		w.Write([]byte("node_disk_reads_bytes_per_second{duration=\"5s\", device=\"" + dev + "\"} "))
+		w.Write([]byte(strconv.FormatFloat(io.bytes_read, 'g', 3, 64)))
+		w.Write(crlf)
+	}
+
+	for dev, io := range m15.devices {
+		w.Write([]byte("node_disk_writes_bytes_per_second{duration=\"15s\", device=\"" + dev + "\"} "))
+		w.Write([]byte(strconv.FormatFloat(io.bytes_write, 'g', 3, 64)))
+		w.Write(crlf)
+		w.Write([]byte("node_disk_reads_bytes_per_second{duration=\"15s\", device=\"" + dev + "\"} "))
+		w.Write([]byte(strconv.FormatFloat(io.bytes_read, 'g', 3, 64)))
+		w.Write(crlf)
+	}
 }
+
 func getSystemMetrics(w http.ResponseWriter) {
 	var crlf = []byte("\r\n")
 	v, _ := mem.VirtualMemory()
@@ -114,6 +172,49 @@ func getSystemMetrics(w http.ResponseWriter) {
 	w.Write([]byte("node_load{duration=\"15s\"} "))
 	w.Write([]byte(strconv.FormatFloat(l.Load15, 'e', 3, 64)))
 	w.Write(crlf)
+}
+
+func getConsulMetrics(w http.ResponseWriter) {
+	metrics, err := loadConsulMetrics()
+	if err != nil {
+		panic(err)
+	}
+	c, ok := metrics.Counters["consul.client.rpc"]
+	if ok {
+		line := "consul_client_rpc_requests_total " + strconv.FormatUint(c.Count, 10) + "\r\n"
+		w.Write([]byte(line))
+	}
+	c, ok = metrics.Counters["consul.rpc.request"]
+	if ok {
+		line := "consul_rpc_requests_total " + strconv.FormatUint(c.Count, 10) + "\r\n"
+		w.Write([]byte(line))
+	}
+	c, ok = metrics.Counters["consul.raft.state.leader"]
+	if ok {
+		line := "consul_election_wins_total " + strconv.FormatUint(c.Count, 10) + "\r\n"
+		w.Write([]byte(line))
+	}
+	c, ok = metrics.Counters["consul.raft.state.candidate"]
+	if ok {
+		line := "consul_election_total " + strconv.FormatUint(c.Count, 10) + "\r\n"
+		w.Write([]byte(line))
+	}
+	c, ok = metrics.Counters["consul.raft.apply"]
+	if ok {
+		applypersec := float64(c.Count) / 10.0
+		line := "consul_raft_apply_seconds " + strconv.FormatFloat(applypersec, 'g', 3, 64) + "\r\n"
+		w.Write([]byte(line))
+	}
+	s, ok := metrics.Samples["consul.raft.commitTime"]
+	if ok {
+		line := "consul_raft_committime_seconds " + strconv.FormatFloat(s.Mean/1000, 'g', 3, 64) + "\r\n"
+		w.Write([]byte(line))
+	}
+	s, ok = metrics.Samples["consul.raft.replication.appendEntries"]
+	if ok {
+		line := "consul_raft_replication_seconds " + strconv.FormatFloat(s.Mean/1000, 'g', 3, 64) + "\r\n"
+		w.Write([]byte(line))
+	}
 }
 
 func getNomadMetrics(w http.ResponseWriter) {

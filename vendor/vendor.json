@@ -21,6 +21,24 @@
 			"revisionTime": "2017-11-10T16:07:06Z"
 		},
 		{
+			"checksumSHA1": "pP0b9eRHl4ZFD4zTcWxTZH4CPq0=",
+			"path": "github.com/hashicorp/errwrap",
+			"revision": "7554cd9344cec97297fa6649b055a8c98c2a1e55",
+			"revisionTime": "2014-10-28T05:47:10Z"
+		},
+		{
+			"checksumSHA1": "mm+z+xjP72Ci8sVhs+1dunO0eDc=",
+			"path": "github.com/hashicorp/go-sockaddr",
+			"revision": "9b4c5fa5b10a683339a270d664474b9f4aee62fc",
+			"revisionTime": "2017-10-30T10:43:12Z"
+		},
+		{
+			"checksumSHA1": "AQX0OP2D6qrXEUSdbzr4rQ+q46k=",
+			"path": "github.com/hashicorp/go-sockaddr/template",
+			"revision": "9b4c5fa5b10a683339a270d664474b9f4aee62fc",
+			"revisionTime": "2017-10-30T10:43:12Z"
+		},
+		{
 			"checksumSHA1": "UYDU8nJJ/RXSTrR+dgQodj78uQI=",
 			"path": "github.com/inconshreveable/mousetrap",
 			"revision": "76626ae9c91c4f2a10f34cad8ce83ea42c93bb75",

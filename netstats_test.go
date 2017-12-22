@@ -14,18 +14,9 @@ package inframetrics
 import (
 	"testing"
 	log "github.com/sirupsen/logrus"
-	"time"
 )
 
-func TestIoStats(t *testing.T) {
-	log.SetLevel(log.InfoLevel)
-	println("Running netStats in goroutine")
-	go RunIoStats()
-	timeChan := time.Tick(5 * time.Second)
-	for range timeChan {
-		m1, m5, m15 := loadIoStats()
-		log.Printf("1s Average: %v \n", m1)
-		log.Printf("5s Average: %v \n", m5)
-		log.Printf("15s Average: %v \n", m15)
-	}
+func TestNetStats(t *testing.T) {
+	log.SetLevel(log.DebugLevel)
+	RunNetStats()
 }

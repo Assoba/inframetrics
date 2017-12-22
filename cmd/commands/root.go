@@ -26,7 +26,8 @@ var RootCmd = &cobra.Command{
 	Short: "Metrics collector for assoba nodes",
 	Long:  `Metrics collector for assoba nodes, uses cadvisor, consul, weave and nomad local metrics, and exposes a useful subset for prometheus 2.0 collection`,
 	Run: func(cmd *cobra.Command, args []string) {
-		go inframetrics.RunStats()
+		go inframetrics.RunIoStats()
+		go inframetrics.RunNetStats()
 		http.HandleFunc("/metrics", inframetrics.Handler)
 		fmt.Printf("Listening on 0.0.0.0:%d \n", port)
 		http.ListenAndServe(":"+strconv.Itoa(int(port)), nil)

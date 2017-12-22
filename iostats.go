@@ -41,11 +41,11 @@ var ma1 *iostats = nil
 var ma5 []*iostats = make([]*iostats, 0, 6)
 var ma15 []*iostats = make([]*iostats, 0, 16)
 
-func GetStats() (*iostats, *iostats, *iostats) {
+func loadIoStats() (*iostats, *iostats, *iostats) {
 	statsLock.RLock()
 	defer statsLock.RUnlock()
 	ma1re := ma1
-	ma5re := iostats{}
+	ma5re := iostats{devices: make(map[string]deviceIO)}
 	var ma5total = 0.0
 	for _, i := range ma5 {
 		ma5re.user += i.user
@@ -54,15 +54,36 @@ func GetStats() (*iostats, *iostats, *iostats) {
 		ma5re.iowait += i.iowait
 		ma5re.steal += i.steal
 		ma5re.idle += i.idle
+		for dev, io := range i.devices {
+			oldVal, ok := ma5re.devices[dev]
+			if ok {
+				newVal := deviceIO{
+					bytes_write: oldVal.bytes_write + io.bytes_write,
+					bytes_read:  oldVal.bytes_read + io.bytes_read,
+				}
+				ma5re.devices[dev] = newVal
+			} else {
+				ma5re.devices[dev] = io
+			}
+		}
 		ma5total += 1
 	}
+
 	ma5re.user = ma5re.user / ma5total
 	ma5re.nice = ma5re.nice / ma5total
 	ma5re.system = ma5re.system / ma5total
 	ma5re.iowait = ma5re.iowait / ma5total
 	ma5re.steal = ma5re.steal / ma5total
 	ma5re.idle = ma5re.idle / ma5total
-	ma15re := iostats{}
+	for dev, io := range ma5re.devices {
+		newVal := deviceIO{
+			bytes_write: io.bytes_write / ma5total,
+			bytes_read:  io.bytes_read / ma5total,
+		}
+		ma5re.devices[dev] = newVal
+	}
+
+	ma15re := iostats{devices: make(map[string]deviceIO)}
 	var ma15total = 0.0
 	for _, i := range ma15 {
 		ma15re.user += i.user
@@ -72,17 +93,37 @@ func GetStats() (*iostats, *iostats, *iostats) {
 		ma15re.steal += i.steal
 		ma15re.idle += i.idle
 		ma15total += 1
+		for dev, io := range i.devices {
+			oldVal, ok := ma15re.devices[dev]
+			if ok {
+				newVal := deviceIO{
+					bytes_write: oldVal.bytes_write + io.bytes_write,
+					bytes_read:  oldVal.bytes_read + io.bytes_read,
+				}
+				ma15re.devices[dev] = newVal
+			} else {
+				ma15re.devices[dev] = io
+			}
+		}
 	}
-	ma15re.user = ma5re.user / ma15total
-	ma15re.nice = ma5re.nice / ma15total
-	ma15re.system = ma5re.system / ma15total
-	ma15re.iowait = ma5re.iowait / ma15total
-	ma15re.steal = ma5re.steal / ma15total
-	ma15re.idle = ma5re.idle / ma15total
+	ma15re.user = ma15re.user / ma15total
+	ma15re.nice = ma15re.nice / ma15total
+	ma15re.system = ma15re.system / ma15total
+	ma15re.iowait = ma15re.iowait / ma15total
+	ma15re.steal = ma15re.steal / ma15total
+	ma15re.idle = ma15re.idle / ma15total
+	for dev, io := range ma15re.devices {
+		newVal := deviceIO{
+			bytes_write: io.bytes_write / ma15total,
+			bytes_read:  io.bytes_read / ma15total,
+		}
+		ma15re.devices[dev] = newVal
+	}
+
 	return ma1re, &ma5re, &ma15re
 }
 
-func AddStat(i *iostats) {
+func addIoStat(i *iostats) {
 	statsLock.Lock()
 	defer statsLock.Unlock()
 	ma1 = i
@@ -104,7 +145,7 @@ func AddStat(i *iostats) {
 	}
 }
 
-func RunStats() {
+func RunIoStats() {
 	log.Debug("Starting iostat")
 	var cmd = exec.Command("/usr/bin/iostat", "-y", "1")
 	out, err := cmd.StdoutPipe()
@@ -173,13 +214,13 @@ func RunStats() {
 				if err != nil {
 					panic(err)
 				}
-				var kbrs = cpu[2]
+				var kbrs = deviceLine[2]
 				kbr, err := strconv.ParseFloat(kbrs, 64)
 				if err != nil {
 					panic(err)
 				}
 				var br = kbr * 1024.0
-				var kbws = cpu[2]
+				var kbws = deviceLine[3]
 				kbw, err := strconv.ParseFloat(kbws, 64)
 				if err != nil {
 					panic(err)
@@ -194,7 +235,7 @@ func RunStats() {
 				deviceLine = strings.Fields(scanner.Text())
 				log.WithField("deviceLine", deviceLine).Debug("Next device line")
 			}
-			AddStat(&stats)
+			addIoStat(&stats)
 		}
 	}
 }
